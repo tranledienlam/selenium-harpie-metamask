@@ -126,7 +126,7 @@ python harpie.py
 
 Mở **`harpie.py`** và tìm dòng sau:
 
-### **Thay đổi số lần thực hiện send token**
+### 🔹 **Thay đổi số lần thực hiện send token**
 
 Tìm dòng 208, thay đổi số `4` thành số bất kì
 
