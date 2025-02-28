@@ -1,3 +1,4 @@
+import random
 from pathlib import Path
 from browser_automation import BrowserManager
 
@@ -14,7 +15,7 @@ class Harpie:
         self.driver = driver
         self.profile_name = profile['profile']
         self.password = profile['password']
-        self.receive_address = profile['receive_address']
+        self.receive_addresses = profile['receive_addresses']
         self.wallet_url = ''
 
     def click_button_popup(self, selector: str, text: str = ''):
@@ -31,8 +32,9 @@ class Harpie:
     def unlock_wallet(self):
         self.node.switch_tab('New Tab', 'title')
         self.driver.get(f'{self.wallet_url}/home.html')
-        self.node.log(f'Đã chuyển sang tab: {self.driver.title} ({self.driver.current_url})'),
-        
+        self.node.log(
+            f'Đã chuyển sang tab: {self.driver.title} ({self.driver.current_url})'),
+
         unlock_actions = [
             (self.node.find_and_input, By.CSS_SELECTOR,
              'input[id="password"]', self.password, 0.1),
@@ -85,13 +87,13 @@ class Harpie:
 
     def scan_wallet(self):
         self.node.find_and_click(By.CSS_SELECTOR,
-            'button[id="tab-overview-navigator"]')
+                                 'button[id="tab-overview-navigator"]')
 
         if not self.node.find_and_click(By.XPATH,
                                         '//button[text()="Scan Wallet"]', None, 60):
             self.node.log(f'Kiểm tra đã thực hiện scan wallet chưa?')
-        
-        if self.node.find(By.XPATH, 
+
+        if self.node.find(By.XPATH,
                           '//p[text()="You have great wallet security and are safe from most common threats."]',
                           None, 30):
             self.node.log(f'Đã thực hiện Scan wallet')
@@ -99,7 +101,7 @@ class Harpie:
 
         self.node.log(f'Scan wallet thất bại. (Có thể do load trang chậm)')
         return False
-    
+
     def connect_authentication(self):
         '''Chưa dùng, fix khi cần'''
         self.node.find_and_click(
@@ -118,25 +120,28 @@ class Harpie:
             times = 10
             found = False
             while times > 0:
-                status_tx = self.node.get_text(By.CLASS_NAME, 'transaction-status-label')
+                status_tx = self.node.get_text(
+                    By.CLASS_NAME, 'transaction-status-label')
                 if status_tx in ['Confirmed', 'Failed']:
                     found = True
                     break
                 # Pending thì check Aprove bên harpie và confirm
                 if status_tx == 'Pending':
-                    self.node.switch_tab('https://harpie.io/app/dashboard/', 'url')
+                    self.node.switch_tab(
+                        'https://harpie.io/app/dashboard/', 'url')
                     if not self.node.find_and_click(By.XPATH, '//button[span[text()="Approve"]]'):
                         return False
-                    
-                    self.node.switch_tab(f'{self.wallet_url}/notification.html', 'url')
+
+                    self.node.switch_tab(
+                        f'{self.wallet_url}/notification.html', 'url')
 
                     current_handle = self.driver.current_window_handle
-                    
+
                     self.click_button_popup('button[aria-label="Scroll down"]')
                     self.click_button_popup('button', 'Confirm')
 
                     Utility.wait_time(5)
-                
+
                     if not current_handle in self.driver.window_handles:
                         self.node.log('Tx token thành công')
                         return True
@@ -147,13 +152,13 @@ class Harpie:
                 self.node.log(f'Tx trước chưa hoàn thành')
                 return False
         # chọn mạng Harpi Poly chưa? //div[text()="Harpie Polygon RPC"]
-        
+
         self.node.find_and_click(By.XPATH, '//button[text()="Tokens"]')
         self.node.find_and_click(By.XPATH, '//span[text()="MATIC"]')
         self.node.find_and_click(
             By.CSS_SELECTOR, 'button[data-testid="coin-overview-send"]')
         self.node.find_and_input(
-            By.CSS_SELECTOR, 'input[data-testid="ens-input"]', self.receive_address, 0)
+            By.CSS_SELECTOR, 'input[data-testid="ens-input"]', random.choice(self.receive_addresses), 0)
         self.node.find_and_input(
             By.CSS_SELECTOR, 'input[data-testid="currency-input"]', '0.0001')
         self.node.find_and_click(By.XPATH, '//button[text()="Continue"]')
@@ -165,16 +170,16 @@ class Harpie:
         self.node.switch_tab(f'{self.wallet_url}/notification.html', 'url')
 
         current_handle = self.driver.current_window_handle
-        
+
         self.click_button_popup('button[aria-label="Scroll down"]')
         self.click_button_popup('button', 'Confirm')
 
         Utility.wait_time(5)
-    
+
         if not current_handle in self.driver.window_handles:
             self.node.log('Tx token thành công')
             return True
-        
+
         self.node.log('Lỗi - Tx token thất bại')
         return False
 
@@ -206,7 +211,7 @@ class Harpie:
             if not self.send_token():
                 self.node.log(f'Hoàn thành {i}/{times}')
                 self.node.stop(f'send_token thất bại')
-            
+
             if (i + 1) == times:
                 self.node.log(f'Hoàn thành {i+1}/{times}')
 
@@ -234,18 +239,18 @@ if __name__ == '__main__':
         data = file.readlines()
 
     for line in data:
-        parts = line.strip().split('|')
+        parts = [p for p in line.strip().split('|') if p]
         if len(parts) < num_parts:
             print(f"Warning: Dữ liệu không hợp lệ - {line}")
             continue
 
-        profile, password, receive_address, * \
+        profile, password, * \
             _ = (parts + [None] * num_parts)[:num_parts]
 
         PROFILES.append({
             'profile': profile,
             'password': password,
-            'receive_address': receive_address
+            'receive_addresses': _
         })
 
     manager = BrowserManager(Main)
