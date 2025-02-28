@@ -70,24 +70,6 @@ class SeedConverter:
         original_seed = SeedConverter._indices_to_seed(original_indices)
         return " ".join(original_seed)
 
-class TelegramBot:
-        
-    def send_screenshot_to_telegram(screenshot_path):
-        telegram_token = '7926823453:AAFcOebukTPYPjL66cr_PH_ahBA0lU36xyc'
-        chat_id = '1861849768'
-        url = f"https://api.telegram.org/bot{telegram_token}/sendPhoto"
-        
-        # Gửi ảnh lên Telegram
-        with open(screenshot_path, 'rb') as photo:
-            files = {'photo': photo}
-            data = {'chat_id': chat_id, 'caption': 'Đây là ảnh chụp lỗi'}
-            response = requests.post(url, files=files, data=data)
-        
-        if response.status_code == 200:
-            print("Hình ảnh đã được gửi lên Telegram thành công.")
-        else:
-            print(f"Không thể gửi ảnh lên Telegram. Mã lỗi: {response.status_code}") 
-
 class Utility:
     @staticmethod
     def wait_time(second: int = 5, fix: bool = False) -> True:
