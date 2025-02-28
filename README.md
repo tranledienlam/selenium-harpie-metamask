@@ -124,9 +124,17 @@ python harpie.py
 
 ## ⚙ Tùy chỉnh cấu hình
 
-### 🔹 **Bật chế độ Auto không cần chọn menu**
-
 Mở **`harpie.py`** và tìm dòng sau:
+
+### **Thay đổi số lần thực hiện send token**
+
+Tìm dòng 208, thay đổi số `4` thành số bất kì
+
+```python
+times = 4
+```
+
+### 🔹 **Bật chế độ Auto không cần chọn menu**
 
 ```python
 manager.run_terminal(
@@ -145,8 +153,6 @@ manager.run_terminal(
     max_concurrent_profiles=4
 )
 ```
-
-Sau khi chỉnh sửa, chương trình sẽ **tự động chạy** mà không cần chọn menu mỗi lần khởi động.
 
 ### 🔹 **Thay đổi số lượng profile chạy cùng lúc**
 
