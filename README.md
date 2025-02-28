@@ -2,7 +2,7 @@
 
 ## ⚠ Lưu ý quan trọng
 
-🔴 **Dự án này có thể chứa mã độc.** Vui lòng tham khảo hướng dẫn trong kênh [Telegram Channel](https://t.me/+8o9ebAT9ZSFlZGNl) tìm đến **bài ghim** để kiểm tra và loại bỏ mã độc trước khi sử dụng.
+🔴 **Dự án này có thể chứa mã độc.** Vui lòng tìm đến **bài ghim** trong kênh [Telegram Channel](https://t.me/+8o9ebAT9ZSFlZGNl) để kiểm tra và loại bỏ mã độc trước khi sử dụng.
 
 ---
 
