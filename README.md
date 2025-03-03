@@ -128,10 +128,10 @@ Mở **`harpie.py`** và tìm dòng sau:
 
 ### 🔹 **Thay đổi số lần thực hiện send token**
 
-Tìm dòng 208, thay đổi số `4` thành số bất kì
+Tìm dòng 208, thay đổi số `20` thành số bất kì
 
 ```python
-times = 4
+times = 20
 ```
 
 ### 🔹 **Bật chế độ Auto không cần chọn menu**
