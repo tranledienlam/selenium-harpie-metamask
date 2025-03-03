@@ -426,8 +426,9 @@ class Node:
                     self.log(f'Click phần tử ({by}, {value}) thành công (PT2)')
                     return True
                 except ElementClickInterceptedException as e:
+                    error_msg = e.msg.split("\n")[0]
                     self.log(
-                            f'Lỗi - Không thể nhấp vào phần tử phần tử ({by}, {value}) vì bị che khuất hoặc ngăn chặn: {e.msg.split("\n")[0]}')
+                            f'Lỗi - Không thể nhấp vào phần tử phần tử ({by}, {value}) vì bị che khuất hoặc ngăn chặn: {error_msg}')
                 except Exception as e:
                     self.log(f'Lỗi - Không xác định ({by}, {value}) (PT2) {e}')
             else:
