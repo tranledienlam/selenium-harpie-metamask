@@ -261,7 +261,6 @@ if __name__ == '__main__':
 
     manager = BrowserManager(Main)
     manager.config_extension('meta-wallet-*.crx')
-    # manager.run_browser(PROFILES[1])
     manager.run_terminal(
         profiles=PROFILES,
         auto=False,
