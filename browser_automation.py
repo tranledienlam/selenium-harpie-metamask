@@ -35,8 +35,8 @@ class Node:
         self._driver = driver
         self.profile_name = profile_name
         # Khoảng thời gian đợi mặc định giữa các hành động (giây)
-        self.wait = 5
-        self.timeout = 20  # Thời gian chờ mặc định (giây) cho các thao tác
+        self.wait = 3
+        self.timeout = 30  # Thời gian chờ mặc định (giây) cho các thao tác
 
     def _execute_node(self, node_action, *args):
         """
@@ -144,6 +144,32 @@ class Node:
         '''
         self.log(message)
         raise ValueError(f'{message}')
+    
+    def snapshot(self, message: str = 'Mô tả lý do snapshot', stop: bool = True):
+        '''
+        Ghi lại trạng thái trình duyệt bằng hình ảnh và dừng thực thi chương trình.
+
+        Args:
+            message (str, option): Thông điệp mô tả lý do dừng thực thi. Mặc định là 'Dừng thực thi.'. Nên gồm tên function chứa nó.
+            stop (bool, option): Nếu `True`, phương thức sẽ ném ra một ngoại lệ `ValueError`, dừng chương trình ngay lập tức.
+        
+        Mô tả:
+            Phương thức này sẽ ghi lại thông điệp vào log và chụp ảnh màn hình trình duyệt.
+            Nếu `stop=True`, phương thức sẽ quăng lỗi `ValueError`, dừng quá trình thực thi.
+            Nếu `data_tele` tồn tại, ảnh chụp sẽ được gửi lên Telegram. Nếu không, ảnh sẽ được lưu cục bộ.
+        '''
+        self.log(message)
+        data_tele = BrowserManager._get_telegram_credentials()
+        if data_tele:
+            BrowserManager._send_screenshot_to_telegram(self._driver, self.profile_name, message)
+        else:
+            BrowserManager._save_screenshot(self._driver, self.profile_name)
+        
+        if stop:
+            raise ValueError(f'{message}')
+        
+
+
 
     def new_tab(self, url: str = None, wait: int = None, timeout: int = None):
         '''
@@ -399,6 +425,9 @@ class Node:
                     element.click()
                     self.log(f'Click phần tử ({by}, {value}) thành công (PT2)')
                     return True
+                except ElementClickInterceptedException as e:
+                    self.log(
+                            f'Lỗi - Không thể nhấp vào phần tử phần tử ({by}, {value}) vì bị che khuất hoặc ngăn chặn: {e.msg.split("\n")[0]}')
                 except Exception as e:
                     self.log(f'Lỗi - Không xác định ({by}, {value}) (PT2) {e}')
             else:
@@ -709,7 +738,7 @@ class BrowserManager:                                                           
             self._log(profile_name,
                       f'Không tin thấy thư mục {snapshot_dir}. Đang tạo...')
             snapshot_dir.mkdir(parents=True, exist_ok=True)
-            self._log(profile_name, f'Tạo thứ mục Snapshot thành công')
+            self._log(profile_name, f'Tạo thư mục Snapshot thành công')
 
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
         screenshot_path = snapshot_dir/f'{profile_name}_{timestamp}.png'
@@ -979,17 +1008,17 @@ class BrowserManager:                                                           
             if stop_flag:
                 self._listen_for_enter(profile_name)
 
-            # Thực thi logic bên ngoài khi đồng thời có HandlerClass và không chạy run_stop()
+            # Thực thi logic bên ngoài khi đồng thời "có HandlerClass và không chạy run_stop()""
             if self.HandlerClass and not stop_flag:
                 self.HandlerClass(driver, profile)._run()
 
         except Exception as e:
             Utility.wait_time(5, True)
+            # Node.snapshot() quăng lỗi ra đây
             if self.data_tele:
                 self._send_screenshot_to_telegram(driver, profile_name, e)
             else:
                 self._save_screenshot(driver, profile_name)
-
         finally:
             self._log(profile_name, 'Đóng... wait')
             Utility.wait_time(1, True)
@@ -1046,7 +1075,7 @@ class BrowserManager:                                                           
             - Gọi `run_browser()` để chạy hồ sơ.
             - Chờ cho đến khi hồ sơ hiện tại đóng lại trước khi tiếp tục hồ sơ tiếp theo.
         '''
-
+        self.matrix = [[None]]
         for index, profile in enumerate(profiles):
             self._log(
                 profile_name=profile['profile'], message=f'[{index+1}/{len(profiles)}]Chờ 5s...')
