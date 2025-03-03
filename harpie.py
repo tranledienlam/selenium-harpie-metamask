@@ -19,7 +19,7 @@ class Harpie:
         self.wallet_url = ''
 
     def click_button_popup(self, selector: str, text: str = ''):
-        Utility.wait_time(5)
+        Utility.wait_time(4)
         self.node.log(f'Thực hiện execute_script {selector}...')
         try:
             js = f'''
@@ -44,6 +44,11 @@ class Harpie:
 
         if not self.node.execute_chain(actions=unlock_actions, message_error='unlock_wallet'):
             return False
+
+        # check có popup nào hiện không? 
+        if self.node.find(By.CSS_SELECTOR, 'section[class="popover-wrap"]'): # có Protect your funds
+            if not self.node.find_and_click(By.XPATH, '//button[text()="Got it"]'):
+                return False
 
         return True
 
@@ -90,7 +95,7 @@ class Harpie:
                                  'button[id="tab-overview-navigator"]')
 
         if not self.node.find_and_click(By.XPATH,
-                                        '//button[text()="Scan Wallet"]', None, 60):
+                                        '//button[text()="Scan Wallet"]'):
             self.node.log(f'Kiểm tra đã thực hiện scan wallet chưa?')
 
         if self.node.find(By.XPATH,
@@ -116,7 +121,7 @@ class Harpie:
         # chuyển tab chrome-extension://mcohilncbfahbmgdjkbpemcciiolgcge/notification.html
         self.node.switch_tab(f'{self.wallet_url}/home.html', 'url')
         # check tx trước đã hoàn thành chưa? nếu chưa thì ngừng
-        if self.node.find(By.CLASS_NAME, 'transaction-status-label'):
+        if self.node.find(By.CLASS_NAME, 'transaction-status-label', 10):
             times = 10
             found = False
             while times > 0:
@@ -127,48 +132,47 @@ class Harpie:
                     break
                 # Pending thì check Aprove bên harpie và confirm
                 if status_tx == 'Pending':
-                    self.node.switch_tab(
-                        'https://harpie.io/app/dashboard/', 'url')
-                    if not self.node.find_and_click(By.XPATH, '//button[span[text()="Approve"]]'):
-                        return False
+                    return self.send_token_confirm()
 
-                    self.node.switch_tab(
-                        f'{self.wallet_url}/notification.html', 'url')
+                times = times - 1
+                Utility.wait_time(2)
 
-                    current_handle = self.driver.current_window_handle
-
-                    self.click_button_popup('button[aria-label="Scroll down"]')
-                    self.click_button_popup('button', 'Confirm')
-
-                    Utility.wait_time(5)
-
-                    if not current_handle in self.driver.window_handles:
-                        self.node.log('Tx token thành công')
-                        return True
-
-            times = times - 1
-            Utility.wait_time(2)
             if not found:
                 self.node.log(f'Tx trước chưa hoàn thành')
                 return False
         # chọn mạng Harpi Poly chưa? //div[text()="Harpie Polygon RPC"]
 
-        self.node.find_and_click(By.XPATH, '//button[text()="Tokens"]')
-        self.node.find_and_click(By.XPATH, '//span[text()="MATIC"]')
-        self.node.find_and_click(
-            By.CSS_SELECTOR, 'button[data-testid="coin-overview-send"]')
-        self.node.find_and_input(
-            By.CSS_SELECTOR, 'input[data-testid="ens-input"]', random.choice(self.receive_addresses), 0)
-        self.node.find_and_input(
-            By.CSS_SELECTOR, 'input[data-testid="currency-input"]', '0.0001')
-        self.node.find_and_click(By.XPATH, '//button[text()="Continue"]')
-        self.node.find_and_click(By.XPATH, '//button[text()="Confirm"]')
+        # action input
+        actions_input = [
+        (self.node.find_and_click, By.XPATH, '//button[text()="Tokens"]'),
+        (self.node.find_and_click, By.XPATH, '//span[text()="MATIC"]'),
+        (self.node.find_and_click, By.CSS_SELECTOR, 'button[data-testid="coin-overview-send"]'),
+        (self.node.find_and_input, By.CSS_SELECTOR, 'input[data-testid="ens-input"]', random.choice(self.receive_addresses), 0),
+        (self.node.find_and_input, By.CSS_SELECTOR, 'input[data-testid="currency-input"]', '0.0001'),
+        (self.node.find_and_click, By.XPATH, '//button[text()="Continue"]'),
+        (self.node.find_and_click, By.XPATH, '//button[text()="Confirm"]'),
+        ]
 
-        self.node.switch_tab('https://harpie.io/app/dashboard/', 'url')
-        self.node.find_and_click(By.XPATH, '//button[span[text()="Approve"]]')
+        if not self.node.execute_chain(actions=actions_input):
+            return False
 
-        self.node.switch_tab(f'{self.wallet_url}/notification.html', 'url')
+        # action confirm
+        if not self.send_token_confirm():
+            self.node.log('Lỗi - Tx token thất bại')
+            return False
 
+        return True
+
+    def send_token_confirm(self):
+        self.node.switch_tab(
+            'https://harpie.io/app/dashboard/', 'url')
+        if not self.node.find_and_click(By.XPATH, '//button[span[text()="Approve"]]', None, 60):
+            return False
+
+        if not self.node.switch_tab(
+            f'{self.wallet_url}/notification.html', 'url'):
+            return False
+        
         current_handle = self.driver.current_window_handle
 
         self.click_button_popup('button[aria-label="Scroll down"]')
@@ -177,16 +181,15 @@ class Harpie:
         Utility.wait_time(5)
 
         if not current_handle in self.driver.window_handles:
-            self.node.log('Tx token thành công')
+            self.node.log('Đã click Confirm')
             return True
-
-        self.node.log('Lỗi - Tx token thất bại')
+        
         return False
-
+    
     def _run_logic(self):
-        self.node.switch_tab('MetaMask Offscreen Page', 'title')
+        if not self.node.switch_tab('MetaMask Offscreen Page', 'title', None, 60): # lỗi khi nó chưa load
+            self.node.stop(f'Chưa load được extension MetaMask')
         self.wallet_url = "/".join(self.node.get_url().split('/')[:3])
-
         # unlock wallet
         if not self.unlock_wallet():
             self.node.stop(f'unlock_wallet Thất bại')
@@ -195,6 +198,9 @@ class Harpie:
         self.node.new_tab('https://harpie.io/onboarding/basic/')
 
         # chuyển sang mạng Poly trên web
+
+        # Nếu có Aprove nào hiển thị lên, do lần lỗi trước, thì thực hiện
+        self.send_token_confirm()
 
         # scan wallet hằng ngày
         self.scan_wallet()
@@ -205,12 +211,12 @@ class Harpie:
         # button connect poly trên web?
 
         # floop send token
-        times = 4
+        times = 20
         for i in range(0, times):
             self.node.log(f'Bắt đầu lần send_token [{i+1}/{times}]')
             if not self.send_token():
                 self.node.log(f'Hoàn thành {i}/{times}')
-                self.node.stop(f'send_token thất bại')
+                self.node.stop(f'send_token thất bại. Hoàn thành {i}/{times}')
 
             if (i + 1) == times:
                 self.node.log(f'Hoàn thành {i+1}/{times}')
