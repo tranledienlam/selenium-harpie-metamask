@@ -4,10 +4,6 @@
 
 🔴 **Dự án này có chứa code hint.** Vui lòng tìm đến **bài ghim** trong kênh [Telegram Channel](https://t.me/+8o9ebAT9ZSFlZGNl) để kiểm tra trước khi sử dụng.
 
-<p align="center">
-    <img src="intro.jpg" alt="Giới thiệu">
-</p>
-
 ---
 
 ## 📖 Mục lục
@@ -36,16 +32,18 @@
 📌 **Trang dự án**: [Harpie.io](https://harpie.io/)
 
 <p align="center">
-    <a href="https://www.youtube.com/watch?v=GJn3SSoGSK8">
-        <img src="https://img.youtube.com/vi/GJn3SSoGSK8/0.jpg" alt="Xem video demo">
-    </a>
+    <img src="intro.jpg" alt="Giới thiệu">
 </p>
 
 ---
 
 ## 🎬 Video demo
 
-[![Watch the video](https://img.youtube.com/vi/GJn3SSoGSK8/0.jpg)](https://www.youtube.com/watch?v=GJn3SSoGSK8)
+<p align="center">
+    <a href="https://www.youtube.com/watch?v=GJn3SSoGSK8">
+        <img src="https://img.youtube.com/vi/GJn3SSoGSK8/0.jpg" alt="Xem video demo">
+    </a>
+</p>
 
 ---
 
