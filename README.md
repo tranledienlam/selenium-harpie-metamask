@@ -2,7 +2,11 @@
 
 ## ⚠ Lưu ý quan trọng
 
-🔴 **Dự án này có thể chứa mã độc.** Vui lòng tìm đến **bài ghim** trong kênh [Telegram Channel](https://t.me/+8o9ebAT9ZSFlZGNl) để kiểm tra và loại bỏ mã độc trước khi sử dụng.
+🔴 **Dự án này có chứa code hint.** Vui lòng tìm đến **bài ghim** trong kênh [Telegram Channel](https://t.me/+8o9ebAT9ZSFlZGNl) để kiểm tra trước khi sử dụng.
+
+<p align="center">
+    <img src="intro.jpg" alt="Giới thiệu">
+</p>
 
 ---
 
@@ -30,6 +34,12 @@
 **AUTOMATION HARPIE + METAMASK WALLET** là một công cụ tự động hóa hoạt động ví điện tử dựa trên Selenium, giúp tự động quét và thực hiện giao dịch trên mạng **Polygon**.
 
 📌 **Trang dự án**: [Harpie.io](https://harpie.io/)
+
+<p align="center">
+    <a href="https://www.youtube.com/watch?v=GJn3SSoGSK8">
+        <img src="https://img.youtube.com/vi/GJn3SSoGSK8/0.jpg" alt="Xem video demo">
+    </a>
+</p>
 
 ---
 
@@ -59,11 +69,12 @@
 
 | File                           | Mô tả                                    |
 | ------------------------------ | ---------------------------------------- |
-| `extensions/meta-wallet-*.crx` | Tiện ích mở rộng Metamask Wallet.            |
+| `extensions/meta-wallet-*.crx` | Tiện ích mở rộng Metamask Wallet.        |
 | `browser_automation.py`        | Code tự động hóa trình duyệt.            |
 | `utils.py`                     | Các hàm hỗ trợ chung.                    |
 | `harpie.py`                    | Chương trình chính thực hiện automation. |
 | `requirements.txt`             | Danh sách các thư viện cần thiết.        |
+| `intro.jpg`                    | Hình ảnh giới thiệu.                     |
 
 ---
 
