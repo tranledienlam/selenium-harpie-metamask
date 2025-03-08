@@ -152,7 +152,7 @@ Tìm dòng sau, thay đổi số `15` thành số bất kì.
 times = 15
 ```
 
-Nên đặt max 15. Mình chú ý thấy rằng, hầu như làm liên tiếp hơn 15 lần, web harpie sẽ bị gián đoạn hiển thị popup "Approve"
+Nên đặt max 15. Mình thấy rằng, khi gửi liên tiếp đến 15 lần, lần 16 sẽ bị gián đoạn hiển thị popup "Approve" trên web harpie
 
 ### 🔹 **Thay đổi số lượng token random sẽ gửi**
 Tìm dòng sau, thay đổi `(0.00001, 0.0001)` thành `(min, max)`
