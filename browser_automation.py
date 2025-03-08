@@ -703,6 +703,7 @@ class BrowserManager:                                                           
     def __init__(self, HandlerClass=None) -> None:
         self.HandlerClass = HandlerClass
 
+        self.headless = False
         self.user_data_dir = Path(__file__).parent/'user_data'
         self.data_tele = self._get_telegram_credentials()
         self.matrix = [[None]]
@@ -918,6 +919,9 @@ class BrowserManager:                                                           
             "credentials_enable_service": False
         })  # chỉ dùng được khi dùng profile default (tắt --profile-directory={profile_name})
 
+        if self.headless:
+            chrome_options.add_argument("--headless=new") # ẩn UI khi đang chạy
+        
         # add extensions
         for ext in self.extensions:
             chrome_options.add_extension(ext)
@@ -1084,7 +1088,7 @@ class BrowserManager:                                                           
 
             self.run_browser(profile=profile, stop_flag=True)
 
-    def run_terminal(self, profiles: list[dict], auto: bool = False, max_concurrent_profiles: int = 4):
+    def run_terminal(self, profiles: list[dict], auto: bool = False, max_concurrent_profiles: int = 4, headless: bool = False):
         '''
         Chạy giao diện dòng lệnh để người dùng chọn chế độ chạy.
 
@@ -1110,6 +1114,8 @@ class BrowserManager:                                                           
             - Gọi `run_stop()` nếu người dùng chọn Set up.
             - Gọi `run_multi()` nếu người dùng chọn Chạy auto.
         '''
+        self.headless = headless
+        
         is_run = True
         while is_run:
 
