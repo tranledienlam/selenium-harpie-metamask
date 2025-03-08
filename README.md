@@ -57,6 +57,7 @@
 
 ## 🔧 Yêu cầu ban đầu
 
+- **Số lượng profile**: chạy tối thiểu 2 profile, để thực hiện gửi token đến ví của các profile khác
 - **Gmail**: Cần để thiết lập ban đầu.
 - **Metamask Wallet**: Phải được đăng nhập sẵn.
 - **Số dư Polygon Mainnet**: Tối thiểu **2-3 POL/ví**, cần nạp thêm khi hết.
@@ -82,18 +83,26 @@
 
 - Mỗi dòng chứa thông tin một profile theo cấu trúc:
   ```plaintext
-  [tên_profile]|[mật_khẩu_ví_meta]|[địa_chỉ_ví_nhận_1]|[địa_chỉ_ví_nhận_2]|...
+  [tên_profile]|[mật_khẩu_ví_meta]|[địa_chỉ_ví_của_profile]
   ```
 - Ví dụ:
   ```plaintext
-  profile1|12345678|0x23fb68d805ebb9d18e8d2e3a07f85ba5416eb2ed|0xe0ae45C0d223ae92F5f89d1669887290453451C7
-  profile2|12345678|0x23fb68d805ebb9d18e8d2e3a07f85ba5416eb2ed|0x5dE3b61d9BB98818b2C95CF5f57cD62add7d8D56
+  profile1|12345678|0x23fb68d805ebb9d18e8d2e3a07f85ba5416eb2ed
+  profile2|12345678|0x23fb68d805ebb9d18e8d2e3a07f85ba5416eb2ed
   ```
 
 ### 2️ (Tùy chọn) Tạo file `token_tele.txt`
 
 - Lưu **Telegram Bot Token** để chương trình gửi thông báo lỗi qua Telegram khi gặp sự cố.
 - Nếu không có file này, ảnh lỗi sẽ lưu vào thư mục **snapshot**.
+- File có cấu trúc:
+  ```plaintext
+  [Id_bot_tele]|[Token_bot_tele]
+  ```
+- Ví dụ:
+  ```plaintext
+  123456789|7934583453:AAFcOebukTPfkL6dfg4_PH_ahBA0lU36xyc
+  ```
 
 ### 3️ Cài đặt Python & thư viện
 
@@ -137,10 +146,19 @@ Mở **`harpie.py`** và tìm dòng sau:
 
 ### 🔹 **Thay đổi số lần thực hiện send token**
 
-Tìm dòng 208, thay đổi số `20` thành số bất kì
+Tìm dòng sau, thay đổi số `15` thành số bất kì.
 
 ```python
-times = 20
+times = 15
+```
+
+Nên đặt max 15. Mình chú ý thấy rằng, hầu như làm liên tiếp hơn 15 lần, web harpie sẽ bị gián đoạn hiển thị popup "Approve"
+
+### 🔹 **Thay đổi số lượng token random sẽ gửi**
+Tìm dòng sau, thay đổi `(0.00001, 0.0001)` thành `(min, max)`
+
+```python
+random_token_amount = str(round(random.uniform(0.00001, 0.0001),6))
 ```
 
 ### 🔹 **Bật chế độ Auto không cần chọn menu**
@@ -169,6 +187,16 @@ manager.run_terminal(
 
 ```python
 max_concurrent_profiles=4  
+```
+
+---
+
+### **Ẩn duyệt trinh khi đang hoạt động**
+
+Đổi `False` hành `True`
+
+```python
+headless=False
 ```
 
 ---
