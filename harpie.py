@@ -143,14 +143,17 @@ class Harpie:
         # chọn mạng Harpi Poly chưa? //div[text()="Harpie Polygon RPC"]
 
         # action input
+        random_token_amount = str(round(random.uniform(0.00001, 0.0001),6))
+        random_address_receive = random.choice(self.receive_addresses)
+        
         actions_input = [
-        (self.node.find_and_click, By.XPATH, '//button[text()="Tokens"]'),
-        (self.node.find_and_click, By.XPATH, '//span[text()="MATIC"]'),
-        (self.node.find_and_click, By.CSS_SELECTOR, 'button[data-testid="coin-overview-send"]'),
-        (self.node.find_and_input, By.CSS_SELECTOR, 'input[data-testid="ens-input"]', random.choice(self.receive_addresses), 0),
-        (self.node.find_and_input, By.CSS_SELECTOR, 'input[data-testid="currency-input"]', '0.0001'),
-        (self.node.find_and_click, By.XPATH, '//button[text()="Continue"]'),
-        (self.node.find_and_click, By.XPATH, '//button[text()="Confirm"]'),
+            (self.node.find_and_click, By.XPATH, '//button[text()="Tokens"]'),
+            (self.node.find_and_click, By.XPATH, '//span[text()="MATIC"]'),
+            (self.node.find_and_click, By.CSS_SELECTOR, 'button[data-testid="coin-overview-send"]'),
+            (self.node.find_and_input, By.CSS_SELECTOR, 'input[data-testid="ens-input"]', random_address_receive, 0),
+            (self.node.find_and_input, By.CSS_SELECTOR, 'input[data-testid="currency-input"]', random_token_amount),
+            (self.node.find_and_click, By.XPATH, '//button[text()="Continue"]'),
+            (self.node.find_and_click, By.XPATH, '//button[text()="Confirm"]'),
         ]
 
         if not self.node.execute_chain(actions=actions_input):
@@ -211,7 +214,7 @@ class Harpie:
         # button connect poly trên web?
 
         # floop send token
-        times = 20
+        times = 15
         for i in range(0, times):
             self.node.log(f'Bắt đầu lần send_token [{i+1}/{times}]')
             if not self.send_token():
@@ -250,19 +253,27 @@ if __name__ == '__main__':
             print(f"Warning: Dữ liệu không hợp lệ - {line}")
             continue
 
-        profile, password, * \
+        profile, password, send_address, * \
             _ = (parts + [None] * num_parts)[:num_parts]
 
         PROFILES.append({
             'profile': profile,
             'password': password,
-            'receive_addresses': _
+            'send_address': send_address,
+            'receive_addresses': []
         })
+        
+# Cập nhật danh sách receive_addresses
+    for profile in PROFILES:
+        for other_profile in PROFILES:
+            if profile['send_address'] != other_profile['send_address']:
+                profile['receive_addresses'].append(other_profile['send_address'])    
 
     manager = BrowserManager(Main)
     manager.config_extension('meta-wallet-*.crx')
     manager.run_terminal(
         profiles=PROFILES,
         auto=False,
-        max_concurrent_profiles=4
+        max_concurrent_profiles=4,
+        headless=False
     )
