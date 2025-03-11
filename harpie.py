@@ -17,7 +17,19 @@ class Harpie:
         self.password = profile['password']
         self.receive_addresses = profile['receive_addresses']
         self.wallet_url = ''
-
+        
+    def get_id_metamask(self):
+        self.node.go_to('chrome://extensions/')
+        els_shadowroot = [
+            (By.CSS_SELECTOR, "extensions-manager"),
+            (By.CSS_SELECTOR, "extensions-item-list"),
+            (By.CSS_SELECTOR, "extensions-item")
+        ]
+        
+        el_extension = self.node.find_in_shadow(els_shadowroot)
+        if el_extension:
+            return el_extension.get_attribute('id')
+            
     def click_button_popup(self, selector: str, text: str = ''):
         Utility.wait_time(4)
         self.node.log(f'Thực hiện execute_script {selector}...')
@@ -30,14 +42,13 @@ class Harpie:
             self.node.log(f'click_button_popup {e}')
 
     def unlock_wallet(self):
-        self.node.switch_tab('New Tab', 'title')
         self.driver.get(f'{self.wallet_url}/home.html')
         self.node.log(
             f'Đã chuyển sang tab: {self.driver.title} ({self.driver.current_url})'),
 
         unlock_actions = [
             (self.node.find_and_input, By.CSS_SELECTOR,
-             'input[id="password"]', self.password, 0.1),
+             'input[id="password"]', self.password, 0.1, None, 60),
             (self.node.find_and_click, By.CSS_SELECTOR,
              'button[data-testid="unlock-submit"]'),
         ]
@@ -143,9 +154,8 @@ class Harpie:
         # chọn mạng Harpi Poly chưa? //div[text()="Harpie Polygon RPC"]
 
         # action input
-        random_token_amount = str(round(random.uniform(0.00001, 0.0001),6))
+        random_token_amount = format(random.uniform(0.00001, 0.0001), ".6f")
         random_address_receive = random.choice(self.receive_addresses)
-        
         actions_input = [
             (self.node.find_and_click, By.XPATH, '//button[text()="Tokens"]'),
             (self.node.find_and_click, By.XPATH, '//span[text()="MATIC"]'),
@@ -191,8 +201,15 @@ class Harpie:
     
     def _run_logic(self):
         if not self.node.switch_tab('MetaMask Offscreen Page', 'title', None, 60): # lỗi khi nó chưa load
-            self.node.stop(f'Chưa load được extension MetaMask')
-        self.wallet_url = "/".join(self.node.get_url().split('/')[:3])
+            self.node.log(f'Chưa load được extension MetaMask')
+            id_metamask =  self.get_id_metamask()
+            if not id_metamask:
+                self.node.stop('Lấy id metamask thất bại')
+            self.wallet_url = f'chrome-extension://{id_metamask}'
+        else:
+            self.wallet_url = "/".join(self.node.get_url().split('/')[:3])
+            self.node.switch_tab('New Tab', 'title')
+        
         # unlock wallet
         if not self.unlock_wallet():
             self.node.stop(f'unlock_wallet Thất bại')
